@@ -61,7 +61,7 @@ impl Game {
 
         Game {
             proj: Rect::new(
-                (WINDOW_WIDTH) as i32 / 2 - PROJ_SIZE as i32 / 2,
+                (WINDOW_WIDTH - PROJ_SIZE) as i32 / 2,
                 (WINDOW_HEIGHT - 30 - PROJ_SIZE) as i32,
                 PROJ_SIZE,
                 PROJ_SIZE,
@@ -69,7 +69,7 @@ impl Game {
             proj_dir: Vector2::new(1.0, -1.0),
             state: State::Paused,
             bar: Rect::new(
-                WINDOW_WIDTH as i32 / 2 - BAR_WIDTH as i32 / 2,
+                (WINDOW_WIDTH - BAR_WIDTH) as i32 / 2,
                 WINDOW_HEIGHT as i32 - 30,
                 BAR_WIDTH,
                 BAR_THICKNESS,
@@ -77,6 +77,15 @@ impl Game {
             bar_dir_x: 0.0,
             targets,
         }
+    }
+
+    fn reset(&mut self) {
+        self.bar_dir_x = 0.0;
+        self.bar.set_x((WINDOW_WIDTH - BAR_WIDTH) as i32 / 2);
+
+        self.proj.set_x((WINDOW_WIDTH - PROJ_SIZE) as i32 / 2);
+        self.proj.set_y((WINDOW_HEIGHT - 30 - PROJ_SIZE) as i32);
+        self.state = State::Paused;
     }
 
     pub fn update(&mut self, dt: f32) {
@@ -92,7 +101,12 @@ impl Game {
             np.x = proj.x() as f32 + proj_dir.x * SPEED * dt;
         }
 
-        if np.y < 0.0 || np.y > (WINDOW_HEIGHT - PROJ_SIZE) as f32 {
+        if np.y > (WINDOW_HEIGHT - PROJ_SIZE) as f32 {
+            self.reset();
+            return;
+        }
+
+        if np.y < 0.0 {
             proj_dir.y *= -1.0;
             np.y = proj.y() as f32 + proj_dir.y * SPEED * dt;
         }
